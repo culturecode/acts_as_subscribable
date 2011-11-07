@@ -18,11 +18,19 @@ module ActsAsSubscribable
       has_many :subscriptions, :as => :subscribable, :dependent => :destroy
       has_many :subscribers, :through => :subscriptions, :source => :user
 
-      attr_accessor :subscribe_creator      # when true, subscribes the creator of the commentable automatically
-      attr_accessor :subscribe_updater      # when true, subscribes users who comment on this commentable automatically
-      attr_accessor :notify_on_update       # when true, notifies all users subscribed to this commentable when a comment is attached to it
+      attr_accessor :subscribe_creator      # when true, subscribes the creator of the subscribable automatically
+      attr_accessor :subscribe_updater      # when true, subscribes users who comment on this subscribable automatically
+      attr_accessor :notify_on_update       # when true, notifies all users subscribed to this subscribable when a comment is attached to it
 
       after_create :subscribe_self
+      
+      # Define how to retrieve the user who created the subscribable
+      # We need this when creating a subscribable with subscribe_creator = true
+      class_eval <<-EOV
+        def subscribable_user
+          #{options[:user] || 'user'}
+        end
+      EOV
 
       extend ActsAsSubscribable::ClassMethods
       include ActsAsSubscribable::InstanceMethods
@@ -52,7 +60,7 @@ module ActsAsSubscribable
     end
 
     def subscribe_self
-      subscribe(subscription_user) unless subscribe_creator.eql? false
+      subscribe(subscribable_user) unless subscribe_creator.eql? false
     end
 
     def notify_of_update(mailer_action, initiator, message = '')
