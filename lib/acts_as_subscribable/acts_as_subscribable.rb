@@ -17,6 +17,8 @@ module ActsAsSubscribable
     def acts_as_subscribable(options = {})
       has_many :subscriptions, :as => :subscribable, :dependent => :destroy
       has_many :subscribers, :through => :subscriptions, :source => :user
+      
+      scope :subscribed_to_by, lambda{|user| joins(:subscriptions).where(:subscriptions => {:user_id => user.id})}
 
       attr_accessor :subscribe_creator      # when true, subscribes the creator of the subscribable automatically
       attr_accessor :subscribe_updater      # when true, subscribes users who comment on this subscribable automatically
