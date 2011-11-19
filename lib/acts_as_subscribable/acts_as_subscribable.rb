@@ -47,6 +47,8 @@ module ActsAsSubscribable
       for subscribable in subscribables
         subscribable.cached_subscription = subscriptions.detect {|subscription| subscription.subscribable_id == subscribable.id} || false
       end
+      
+      return subscribables
     end
   end
 
