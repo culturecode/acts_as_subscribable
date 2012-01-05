@@ -42,10 +42,13 @@ module ActsAsSubscribable
   module ClassMethods
     # Find all the subscriptions of the subscribables by the user in a single SQL query and cache them in the subscribables for use in the view.
     def cache_subscriptions_for(subscribables, user)
-      subscriptions = Subscription.where(:subscribable_type => name, :subscribable_id => subscribables.collect(&:id), :user_id => user.id)
+      subscriptions = []
+      Subscription.where(:subscribable_type => name, :subscribable_id => subscribables.collect(&:id), :user_id => user.id).each do |subscription|
+        subscriptions[subscription.subscribable_id] = subscription
+      end
 
       for subscribable in subscribables
-        subscribable.cached_subscription = subscriptions.detect {|subscription| subscription.subscribable_id == subscribable.id} || false
+        subscribable.cached_subscription = subscriptions[subscribable.id] || false
       end
       
       return subscribables
