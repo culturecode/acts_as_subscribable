@@ -78,7 +78,7 @@ module ActsAsSubscribable
     def subscribed_to_by?(user)
       case cached_subscription
       when nil
-        subscribers.exists?(user)
+        subscribers.loaded? ? subscribers.include?(user) : subscribers.exists?(user)
       else
         cached_subscription
       end
