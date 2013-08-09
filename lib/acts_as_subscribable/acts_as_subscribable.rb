@@ -63,7 +63,7 @@ module ActsAsSubscribable
     end
 
     def subscribe(user)
-      Subscription.find_or_create_by_user_id_and_subscribable_type_and_subscribable_id(:user_id => user.id, :subscribable_type => self.class.to_s, :subscribable_id => id)
+      Subscription.where(:user_id => user.id, :subscribable_type => self.class.to_s, :subscribable_id => id).first_or_create!
     end
 
     def subscribe_self
