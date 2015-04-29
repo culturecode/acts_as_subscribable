@@ -17,7 +17,7 @@ module ActsAsSubscribable
     def acts_as_subscribable(options = {})
       has_many :subscriptions, :as => :subscribable, :dependent => :destroy
       has_many :subscribers, :through => :subscriptions, :source => :user
-      
+
       scope :subscribed_to_by, lambda{|user| joins(:subscriptions).where(:subscriptions => {:user_id => user.id})}
 
       attr_accessor :subscribe_creator      # when true, subscribes the creator of the subscribable automatically
@@ -25,7 +25,7 @@ module ActsAsSubscribable
       attr_accessor :notify_on_update       # when true, notifies all users subscribed to this subscribable when a comment is attached to it
 
       after_create :subscribe_self
-      
+
       # Define how to retrieve the user who created the subscribable
       # We need this when creating a subscribable with subscribe_creator = true
       class_eval <<-EOV
@@ -50,7 +50,7 @@ module ActsAsSubscribable
       for subscribable in subscribables
         subscribable.cached_subscription = subscriptions[subscribable.id] || false
       end
-      
+
       return subscribables
     end
   end
@@ -71,14 +71,14 @@ module ActsAsSubscribable
     end
 
     def notify_of_update(mailer_action, initiator, message = '')
-      UserMailer.send(mailer_action + "_email", subscribers - [initiator], self, message, initiator).deliver unless notify_on_update.eql? false
+      UserMailer.send(mailer_action + "_email", subscribers - [initiator], self, message, initiator).deliver_now unless notify_on_update.eql? false
       subscribe(initiator) unless subscribe_updater.eql? false
     end
 
     def subscribed_to_by?(user)
       case cached_subscription
       when nil
-        subscribers.loaded? ? subscribers.include?(user) : subscribers.exists?(user)
+        subscribers.loaded? ? subscribers.include?(user) : subscribers.exists?(user.id)
       else
         cached_subscription
       end
