@@ -67,12 +67,12 @@ module ActsAsSubscribable
     end
 
     def subscribe_self
-      subscribe(subscribable_user) unless subscribe_creator.eql? false
+      subscribe(subscribable_user) if subscribe_creator
     end
 
     def notify_of_update(mailer_action, initiator, message = '')
-      UserMailer.send(mailer_action + "_email", subscribers - [initiator], self, message, initiator).deliver_now unless notify_on_update.eql? false
-      subscribe(initiator) unless subscribe_updater.eql? false
+      UserMailer.send(mailer_action + "_email", subscribers - [initiator], self, message, initiator).deliver_now if notify_on_update
+      subscribe(initiator) if subscribe_updater
     end
 
     def subscribed_to_by?(user)
